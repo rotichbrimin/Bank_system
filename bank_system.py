@@ -267,6 +267,7 @@ def delete_account(accounts):
         
             if acc_num <= 0:
                 print("Account number must be more than 0: ")
+                found= False
                 continue
             if len(str(acc_num)) != 16:
                 print("Account number must be 16 digits: ")
@@ -276,19 +277,21 @@ def delete_account(accounts):
             
             for i, acc in enumerate(accounts):
                 if acc['account_number']==acc_num:
-                    
-                    confirm = input("Are you sure to delete this account? yes/y or no/n: ")
-                    if confirm in ["yes", "y"]:
-                        del accounts[i]
-                        save_data(accounts)
-                        print(f"Account {acc_num} deleted succesfully")
-                        return
-                    elif confirm in ["no", "n"]:
-                        print("Cancelled deletion successfully")
-                        return
-                    else:
-                        print("Enter yes/y or no/n !")
-                        continue
+                    found =True
+                    if found:   
+                        confirm = input("Are you sure to delete this account? yes/y or no/n: ")
+                        if confirm in ["yes", "y"]:
+                            del accounts[i]
+                            save_data(accounts)
+                            print(f"Account {acc_num} deleted succesfully")
+                            return
+                        elif confirm in ["no", "n"]:
+                            print("Cancelled deletion successfully")
+                            return
+                        else:
+                            print("Enter yes/y or no/n !")
+                            continue
+            if not found:             
                 print("Account not found. Try again! ")
                 continue
                
@@ -296,6 +299,38 @@ def delete_account(accounts):
         except ValueError:
             print("Enter a valid account number! ")
             continue
+
+def search_account(accounts):
+    if not accounts:
+        print("No account to saved: ")
+        return
+        
+    while True:
+        try:
+            acc_num = int(input("Enter account number: "))
+            found = False
+            if acc_num <=0:
+                print("Account number must be more than 0 :")
+                continue
+            if len(str(acc_num)) != 16:
+                print("Account number must be 16 digits: ")
+                continue
+                    
+            for acc in accounts:
+                if acc['account_number'] == acc_num:
+                    
+                    found = True
+           
+                    print(f"Name: {acc['name']} | {acc['account_number']}")
+                    break
+            if not found:
+                print("Account not found. Try again! ")
+                continue            
+                    
+        except ValueError:
+            print("Enter a valid account number! ")
+            continue
+              
 
 accounts = load_data()
 while True:
