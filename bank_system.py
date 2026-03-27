@@ -1,5 +1,16 @@
 
+import json
 
+def save_data(accounts):
+    with open("/storage/emulated/0/accounts.json", "w") as file:
+        json.dump(accounts, file, indent = 4)
+
+def load_data():
+    try:
+        with open("/storage/emulated/0/accounts.json", "r") as file:
+            return json.load (file)
+    except FileNotFoundError:
+        return []
 def  create_account(accounts):
     while True:
         name = input("Enter your name: ")
@@ -12,12 +23,12 @@ def  create_account(accounts):
             
     while True:
         try:
-            acc_num = int(input("Enter account number: "))
+            acc_num = int(input("Enter account number (16 digits): "))
             if acc_num <= 0:
                 print("Account number must be positive:")
                 continue
             if len(str(acc_num)) != 16:
-                print("Account number must be four (16)")
+                print("Account number must be  16")
                 continue
             exists = False
             for acc in accounts:
@@ -72,11 +83,13 @@ def deposit(accounts):
                 while True:
                     try:
                         amount = int(input("Enter amount to deposit: "))
-                        print(f"{amount} deposited to account number {account_number} successfully!")
+                        
                         if amount <= 0:
                             print("Amount cannot be 0 :")
                             continue
                         acc['balance'] += amount
+                        save_data(accounts)
+                        print(f"{amount} deposited to account number {account_number} successfully!")
                         break
                     except ValueError:
                         print("Enter a valid amount!")
@@ -121,6 +134,7 @@ def withdraw(accounts):
                     print("Insufficient funds! ")
                     continue
                 acc['balance'] -= amount
+                save_data(accounts)
                 print(f"KSH: {amount} withdrawn successfully fom ACC: {account_number} ")
                 break
                     
@@ -225,6 +239,7 @@ def transfer_money(accounts):
                 
         sender_acc['balance'] -= amount
         receiver_acc['balance'] += amount
+        save_data(accounts)
         print(f"KSH: {amount} transferred from {sender} to {receiver} successfully! ")
         break
 
@@ -235,16 +250,16 @@ def view_accounts(accounts):
         print("No accounts saved! ")
         return
      
-    print("=== SAVED ACCOUNTS ===")
+    print("\n=== SAVED ACCOUNTS ===")
     for acc in accounts:
-        print(f"Name: {acc['name']} | Account Number: {acc['account_number']}")
+        print(f"\nName: {acc['name']} | Account Number: {acc['account_number']}")
         
 
 def delete_account(accounts):
     while True:
         
         if not accounts:
-            print("No account available fo delete!")
+            print("No account available to delete!")
             return
         
         try:
@@ -265,6 +280,7 @@ def delete_account(accounts):
                     confirm = input("Are you sure to delete this account? yes/y or no/n: ")
                     if confirm in ["yes", "y"]:
                         del accounts[i]
+                        save_data(accounts)
                         print(f"Account {acc_num} deleted succesfully")
                         return
                     elif confirm in ["no", "n"]:
@@ -273,14 +289,17 @@ def delete_account(accounts):
                     else:
                         print("Enter yes/y or no/n !")
                         continue
+                print("Account not found. Try again! ")
+                continue
+               
                 
         except ValueError:
             print("Enter a valid account number! ")
             continue
 
-accounts = []
+accounts = load_data()
 while True:
-    print("=== MENU ===")
+    print("\n=== MENU ===")
     print("1. Add Account: ")
     print("2. Deposit: ")
     print("3. Withdraw: ")
@@ -296,7 +315,8 @@ while True:
         if option == 1:
             while True:
                 accounts.append(create_account(accounts))
-                again = input("Add another account? yes/y or no/n? ").lower().strip
+                save_data(accounts)
+                again = input("\nAdd another account? yes/y or no/n? ").lower().strip()
                 if again in ["yes", "y"]:
                     continue
                 elif again in ["no","n"]:
