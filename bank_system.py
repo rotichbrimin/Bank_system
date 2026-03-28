@@ -41,6 +41,21 @@ def  create_account(accounts):
             break
         except ValueError:
             print("Enter a valid account number: ")
+            
+    while True:
+        try:
+            pin = input("Create a pin (4 digits): ")
+            
+            if not pin.isdigit() or len(pin) != 4:
+                print("Pin must be four digits: ")
+                continue
+            pin = int(pin)
+            break
+        except ValueError:
+            print("Enter a valid pin: ")
+            continue
+                
+                
            
     while True:
         try:
@@ -58,9 +73,31 @@ def  create_account(accounts):
     return{ 
        "name":name,
        "account_number":acc_num,
-       "balance":start_balance
-         
+       "balance":start_balance,
+       "pin":pin
      }
+       
+       
+def verify_pin(acc):
+    attempts = 3
+    while attempts > 0:
+        try:
+            entered = int(input("Enter pin: ")) 
+            
+            if entered == acc['pin']:
+                print("Login successful! ")
+                print(f"\nBalance: {acc['balance']}")
+                return True
+                
+            else:
+                attempts -= 1
+                print(f"Wrong pin! Attempts left: {attempts} ")
+                    
+        except ValueError:
+            print("Enter a valid pin! ")
+    print("Access denied! Too many wrong attempts! ")
+    return False
+            
             
  
 def deposit(accounts):
@@ -116,27 +153,31 @@ def withdraw(accounts):
             for acc in accounts:
                 if acc['account_number'] == account_number:
                     found = True
-                    break
+                    if not verify_pin(acc):
+                        print("Access denied")
+                        return
+                        
+                    while True:
+                        try:
+                            amount = int(input("Enter amount to withdraw: "))
+                        except ValueError:
+                            print("Enter a valid amount:")
+                            continue
+                        if amount<=0:
+                            print("Amount must be more than 0! ")
+                            continue
+                        if acc['balance'] < amount:
+                            print("Insufficient funds! ")
+                            continue
+                        acc['balance'] -= amount
+                        save_data(accounts)
+                        print(f"KSH: {amount} withdrawn successfully fom ACC: {account_number} ")
+                        print(f"New balance: {acc['balance']}")
+                        return
                     
             if not found:
                 print("Account number not found! ")
                 continue
-            while True:
-                try:
-                    amount = int(input("Enter amount to withdraw: "))
-                except ValueError:
-                    print("Enter a valid amount:")
-                    continue
-                if amount<=0:
-                    print("Amount must be more than 0! ")
-                    continue
-                if acc['balance'] < amount:
-                    print("Insufficient funds! ")
-                    continue
-                acc['balance'] -= amount
-                save_data(accounts)
-                print(f"KSH: {amount} withdrawn successfully fom ACC: {account_number} ")
-                break
                     
         except ValueError:
             print("Enter a valid account number! ")
@@ -342,7 +383,8 @@ while True:
     print("5. Transfer Money: ")
     print("6. View Accounts: ")
     print("7. Delete Account: ")
-    print("8. Exit: ")
+    print("8. Searvh Account: ")
+    print("9. Exit: ")
     
     try:
         option = int(input("\nChoose an option: "))
@@ -372,6 +414,8 @@ while True:
         elif option == 7:
             delete_account(accounts)
         elif option == 8:
+            search_account(accounts)
+        elif option == 9:
             break
         else:
             print("Enter a valid option (1,2,3,4,5,6,7,8)")
