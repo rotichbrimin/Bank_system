@@ -202,7 +202,11 @@ def view_balance(accounts):
                         break
                         
                 if found:
-                    print(" === YOUR BALANCE ===")
+                    if not verify_pin(acc):
+                        print("Access denied! ")
+                        return
+                        
+                    print("\n === YOUR BALANCE ===")
                     print(f"Name: {acc['name']}")
                     print(f"Balance: {acc['balance']}")
                     
@@ -236,6 +240,10 @@ def transfer_money(accounts):
             print("Sender account not found! ")
             continue
         else:
+            break
+            
+        if not verify_pin(sender_acc):
+            print("Access denied! ")
             break
        
     while True:
@@ -315,23 +323,25 @@ def delete_account(accounts):
                 continue
         
            
-            
+            found = False
             for i, acc in enumerate(accounts):
                 if acc['account_number']==acc_num:
                     found =True
-                    if found:   
-                        confirm = input("Are you sure to delete this account? yes/y or no/n: ")
-                        if confirm in ["yes", "y"]:
-                            del accounts[i]
-                            save_data(accounts)
-                            print(f"Account {acc_num} deleted succesfully")
-                            return
-                        elif confirm in ["no", "n"]:
-                            print("Cancelled deletion successfully")
-                            return
-                        else:
-                            print("Enter yes/y or no/n !")
-                            continue
+                    confirm = input("Are you sure to delete this account? yes/y or no/n: ")
+                    if not verify_pin(acc):
+                        print("Access denied! ")
+                        return
+                    if confirm in ["yes", "y"]:
+                        del accounts[i]
+                        save_data(accounts)
+                        print(f"Account {acc_num} deleted succesfully")
+                        return
+                    elif confirm in ["no", "n"]:
+                        print("Cancelled deletion successfully")
+                        return
+                    else:
+                        print("Enter yes/y or no/n !")
+                        continue
             if not found:             
                 print("Account not found. Try again! ")
                 continue
@@ -371,7 +381,49 @@ def search_account(accounts):
         except ValueError:
             print("Enter a valid account number! ")
             continue
-              
+    
+def change_pin(accounts):
+    if not accounts:
+        print("No accounts available! ")     
+        return
+    while True:   
+        try:
+            acc_num = int(input("Enter account number: "))
+        
+            if acc_num <=0:
+                print("Account number must be more than 0. Try again! ")
+                continue
+            if len(str(acc_num))!= 16:
+                print("Account number musy be 16 digits. Try again!")
+                continue
+            for acc in accounts:
+                if acc['account_number']== acc_num:
+                    if not verify_pin(acc):
+                        print("Access denied !")
+                        return
+                        
+                    while True:
+                        try:
+                            new_pin = input("Enter new pin: ")
+                            if not new_pin.isdigit() or len(new_pin) != 4:
+                                print("Pin must be 4 digits! Try again! ")
+                                continue
+                                
+                            acc['pin'] = int(new_pin)
+                            save_data(accounts)
+                            print("New pin updated successfully! ")
+                            return
+                        except ValueError:
+                            print("Enter a valid pin! ")
+                            continue
+                            
+            print("Account not found")
+
+        except ValueError:
+            print("Enter a valid account number! ")
+            continue
+            
+                
 
 accounts = load_data()
 while True:
@@ -383,8 +435,9 @@ while True:
     print("5. Transfer Money: ")
     print("6. View Accounts: ")
     print("7. Delete Account: ")
-    print("8. Searvh Account: ")
-    print("9. Exit: ")
+    print("8. Search Account: ")
+    print("9. Change pin: ")
+    print("10. Exit: ")
     
     try:
         option = int(input("\nChoose an option: "))
@@ -416,6 +469,8 @@ while True:
         elif option == 8:
             search_account(accounts)
         elif option == 9:
+            change_pin(accounts)
+        elif option == 10:
             break
         else:
             print("Enter a valid option (1,2,3,4,5,6,7,8)")
