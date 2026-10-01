@@ -11,7 +11,7 @@ def deposit(accounts):
                 print("Account number must be more than 0:")
                 continue
             if len(str(account_number))!=16:
-                print("Account number must be 16. Tru again! ")
+                print("Account number must be 16. Try again! ")
                 continue
             found = False
             for acc in accounts:
